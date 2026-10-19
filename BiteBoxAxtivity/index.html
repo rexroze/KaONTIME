@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KaONTIME | Fresh Meals Delivered Right On Time</title>
+    <meta name="description" content="Order fresh, chef-crafted burgers, pizzas, pastas, rice bowls and drinks. Delivered fast and hot right to your doorstep with KaONTIME.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS & Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Custom KaONTIME Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app" v-cloak>
+
+        <!-- TOP PROMO BANNER -->
+        <div class="top-announcement">
+            <div class="announcement-content">
+                <span class="announcement-badge">FLASH DEAL</span>
+                <span>⚡ Use code <strong>KAONTIME</strong> for 20% OFF | Free delivery for orders over ₱500!</span>
+            </div>
+        </div>
+
+        <!-- NAVBAR -->
+        <header class="navbar">
+            <div class="nav-container">
+                <!-- LOGO -->
+                <div class="logo-wrapper" @click="selectedCategory = 'All'; search = ''; showFavoritesOnly = false;">
+                    <div class="logo-icon">
+                        <i class="bi bi-clock-history fs-5"></i>
+                    </div>
+                    <div class="logo-text">
+                        <span class="brand-title">Ka<span class="brand-accent">ONTIME</span></span>
+                        <span class="brand-sub">KITCHEN & EXPRESS</span>
+                    </div>
+                </div>
+
+                <!-- DELIVERY LOCATION PILL -->
+                <div class="delivery-status-pill">
+                    <div class="status-indicator">
+                        <span class="pulse-dot"></span>
+                        <span class="status-label">Fast Delivery</span>
+                    </div>
+                    <div class="delivery-location">
+                        <span class="loc-text"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Cebu City &bull; <strong>20-30 min</strong></span>
+                    </div>
+                </div>
+
+                <!-- NAV ACTIONS -->
+                <div class="nav-actions">
+                    <!-- VIEW DATABASE ORDERS (ADMIN/KITCHEN VIEW) -->
+                    <button 
+                        class="nav-icon-btn admin-orders-btn" 
+                        @click="fetchDbOrders"
+                        title="View Orders Saved in Database"
+                    >
+                        <i class="bi bi-receipt-cutoff text-warning"></i>
+                        <span class="btn-label">Orders</span>
+                    </button>
+
+                    <!-- FAVORITES FILTER SHORTCUT -->
+                    <button 
+                        class="nav-icon-btn" 
+                        :class="{ 'active': showFavoritesOnly }"
+                        @click="showFavoritesOnly = !showFavoritesOnly"
+                        :title="showFavoritesOnly ? 'Show All Foods' : 'Show Saved Favorites'"
+                        id="favorites-toggle-btn"
+                    >
+                        <i class="bi" :class="showFavoritesOnly ? 'bi-heart-fill text-danger' : 'bi-heart'"></i>
+                        <span class="btn-label">Saved</span>
+                        <span v-if="favorites.length > 0" class="fav-badge">{{ favorites.length }}</span>
+                    </button>
+
+                    <!-- CART BUTTON -->
+                    <button 
+                        class="cart-button" 
+                        @click="showCart = true"
+                        id="open-cart-btn"
+                    >
+                        <div class="cart-btn-inner">
+                            <span class="cart-icon-wrap">
+                                <i class="bi bi-bag-check fs-6"></i>
+                                <span v-if="cartCount > 0" class="cart-count-badge">{{ cartCount }}</span>
+                            </span>
+                            <span class="cart-text">Order</span>
+                            <span v-if="cartTotal > 0" class="cart-total-badge">₱{{ cartTotal.toFixed(0) }}</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- HERO SECTION -->
+        <section class="hero-section">
+            <div class="hero-backdrop-glow"></div>
+            <div class="hero-container">
+                <div class="hero-content">
+                    <div class="hero-tag">
+                        <span class="tag-sparkle">✨</span>
+                        <span>PREMIUM GOURMET COMFORT FOOD</span>
+                    </div>
+                    
+                    <h1 class="hero-title">
+                        Craving Good Food? <br>
+                        Delivered <span class="gradient-text">Right On Time.</span>
+                    </h1>
+                    
+                    <p class="hero-subtitle">
+                        Taste freshly prepared, chef-inspired meals made from premium ingredients. 
+                        Swift delivery from our kitchen to your table.
+                    </p>
+
+                    <!-- HERO SEARCH & ACTION BAR -->
+                    <div class="hero-search-wrapper">
+                        <div class="hero-search-box">
+                            <span class="search-icon"><i class="bi bi-search"></i></span>
+                            <input 
+                                v-model="search" 
+                                type="text" 
+                                placeholder="Search by food name, burger, pasta, drinks..."
+                                id="food-search-input"
+                            >
+                            <button v-if="search" class="clear-search-btn" @click="search = ''" title="Clear">✕</button>
+                        </div>
+                    </div>
+
+                    <!-- HERO TRUST STATS -->
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-icon"><i class="bi bi-lightning-charge-fill text-warning"></i></span>
+                            <div>
+                                <span class="stat-value">25 Mins</span>
+                                <span class="stat-desc">Avg. Delivery</span>
+                            </div>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <span class="stat-icon"><i class="bi bi-star-fill text-warning"></i></span>
+                            <div>
+                                <span class="stat-value">4.9 / 5.0</span>
+                                <span class="stat-desc">Top Rated Taste</span>
+                            </div>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <span class="stat-icon"><i class="bi bi-shield-check text-success"></i></span>
+                            <div>
+                                <span class="stat-value">100% Fresh</span>
+                                <span class="stat-desc">Cooked to Order</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MAIN MENU CONTAINER -->
+        <main class="container py-5" id="menu-section">
+
+            <!-- FILTER & CONTROLS BAR -->
+            <div class="menu-controls-header">
+                <!-- CATEGORY PILLS -->
+                <div class="categories-scroll-wrapper">
+                    <div class="categories">
+                        <button 
+                            v-for="category in categories" 
+                            :key="category"
+                            class="category-pill"
+                            :class="{ active: selectedCategory === category && !showFavoritesOnly }"
+                            @click="selectedCategory = category; showFavoritesOnly = false;"
+                        >
+                            <span class="cat-icon">{{ getCategoryIcon(category) }}</span>
+                            <span class="cat-name">{{ category }}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SORT AND TOGGLE FILTERS -->
+                <div class="filter-controls-right">
+                    <div class="sort-selector-wrapper">
+                        <label for="sort-select" class="sort-label">Sort by:</label>
+                        <select v-model="sortBy" id="sort-select" class="sort-dropdown">
+                            <option value="popular">🔥 Most Popular</option>
+                            <option value="rating">⭐ Highest Rated</option>
+                            <option value="price-asc">💵 Price: Low to High</option>
+                            <option value="price-desc">💎 Price: High to Low</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION TITLE & STATUS -->
+            <div class="section-meta-header">
+                <div>
+                    <h2 class="section-heading">
+                        <span v-if="showFavoritesOnly">❤️ Your Saved Favorites</span>
+                        <span v-else-if="selectedCategory !== 'All'">{{ selectedCategory }} Selection</span>
+                        <span v-else>Signature Menu</span>
+                    </h2>
+                    <p class="section-subheading">
+                        <span v-if="search">Showing search results for "{{ search }}"</span>
+                        <span v-else-if="showFavoritesOnly">Quick access to all your favorite meals</span>
+                        <span v-else>Handcrafted daily using prime cuts and freshest ingredients</span>
+                    </p>
+                </div>
+                <div class="item-count-chip">
+                    <strong>{{ filteredFoods.length }}</strong> dishes available
+                </div>
+            </div>
+
+            <!-- EMPTY STATE -->
+            <div v-if="filteredFoods.length === 0" class="empty-state">
+                <div class="empty-icon-wrap">
+                    <span class="empty-icon">🍽️</span>
+                </div>
+                <h3 class="empty-title">No matching dishes found</h3>
+                <p class="empty-text">We couldn't find anything matching your search criteria. Try a different keyword or reset filters.</p>
+                <button class="reset-filter-btn" @click="search = ''; selectedCategory = 'All'; showFavoritesOnly = false;">
+                    View Full Menu
+                </button>
+            </div>
+
+            <!-- FOOD CARDS GRID -->
+            <div v-else class="food-grid">
+                <article 
+                    v-for="food in filteredFoods" 
+                    :key="food.id" 
+                    class="food-card"
+                    :class="{ 'is-out-of-stock': !food.available || food.stock === 0 }"
+                >
+                    <!-- IMAGE & BADGES -->
+                    <div class="food-image-wrapper">
+                        <img :src="food.image" :alt="food.name" loading="lazy" class="food-img">
+                        <div class="image-overlay-gradient"></div>
+
+                        <!-- FLOATING TAG -->
+                        <span v-if="food.tag" class="food-badge" :class="'badge-' + food.tag.toLowerCase().replace(/\s+/g, '-')">
+                            {{ food.tag }}
+                        </span>
+
+                        <!-- PREP TIME CHIP -->
+                        <span class="prep-chip">
+                            ⏱️ {{ food.prepTime }}
+                        </span>
+
+                        <!-- FAVORITE BUTTON -->
+                        <button 
+                            class="favorite-button"
+                            :class="{ 'is-active': isFavorite(food.id) }"
+                            @click="toggleFavorite(food)"
+                            :title="isFavorite(food.id) ? 'Remove favorite' : 'Save to favorites'"
+                            :aria-label="'Favorite ' + food.name"
+                        >
+                            <i class="bi" :class="isFavorite(food.id) ? 'bi-heart-fill text-danger' : 'bi-heart text-secondary'"></i>
+                        </button>
+                    </div>
+
+                    <!-- CARD BODY -->
+                    <div class="food-card-body">
+                        <div class="food-category-row">
+                            <span class="food-category-label">{{ food.category }}</span>
+                            <span class="food-rating">
+                                <span class="star-icon">⭐</span>
+                                <span class="rating-num">{{ food.rating }}</span>
+                                <span class="review-count">({{ food.reviewsCount }})</span>
+                            </span>
+                        </div>
+
+                        <h3 class="food-title">{{ food.name }}</h3>
+                        <p class="food-description">{{ food.description }}</p>
+
+                        <!-- PRICE & STOCK ROW -->
+                        <div class="food-price-row">
+                            <div class="price-wrapper">
+                                <span class="currency-symbol">₱</span>
+                                <span class="price-amount">{{ food.price.toFixed(2) }}</span>
+                            </div>
+
+                            <div class="stock-status">
+                                <span v-if="food.available && food.stock > 0" class="badge-stock in-stock">
+                                    <span class="stock-dot"></span> In Stock ({{ food.stock }})
+                                </span>
+                                <span v-else class="badge-stock out-of-stock">
+                                    <span class="stock-dot"></span> Sold Out
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- ACTION BUTTON / QUANTITY STEPPER -->
+                        <div class="card-action-container">
+                            <template v-if="food.available && food.stock > 0">
+                                <button 
+                                    class="add-to-cart-btn"
+                                    @click="addToCart(food)"
+                                >
+                                    <span class="btn-icon">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </span>
+                                    <span>Add to Order</span>
+                                    <span v-if="getItemCartQuantity(food.id) > 0" class="card-cart-qty-badge">
+                                        {{ getItemCartQuantity(food.id) }} in cart
+                                    </span>
+                                </button>
+                            </template>
+
+                            <template v-else>
+                                <button class="add-to-cart-btn disabled" disabled>
+                                    <span>Currently Unavailable</span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </main>
+
+        <!-- CART DRAWER / MODAL -->
+        <div 
+            v-if="showCart" 
+            class="modal-overlay" 
+            @click.self="showCart = false"
+        >
+            <div class="cart-drawer">
+                <!-- DRAWER HEADER -->
+                <div class="drawer-header">
+                    <div class="drawer-title-group">
+                        <div class="drawer-icon">🛒</div>
+                        <div>
+                            <h2 class="drawer-title">Your Order</h2>
+                            <p class="drawer-subtitle">{{ cartCount }} item(s) selected</p>
+                        </div>
+                    </div>
+                    <button class="drawer-close-btn" @click="showCart = false" title="Close Order Drawer">✕</button>
+                </div>
+
+                <!-- FREE DELIVERY PROGRESS BAR -->
+                <div class="free-delivery-tracker">
+                    <div class="tracker-message">
+                        <span v-if="cartSubtotal >= freeDeliveryThreshold">
+                            🎉 <strong>Unlocked!</strong> You got <strong>FREE Express Delivery</strong>!
+                        </span>
+                        <span v-else>
+                            Add <strong>₱{{ (freeDeliveryThreshold - cartSubtotal).toFixed(2) }}</strong> more to unlock <strong>FREE Delivery</strong>!
+                        </span>
+                    </div>
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" :style="{ width: freeDeliveryProgress + '%' }"></div>
+                    </div>
+                </div>
+
+                <!-- EMPTY CART BODY -->
+                <div v-if="cart.length === 0" class="drawer-empty-body">
+                    <div class="empty-cart-illustration">🛍️</div>
+                    <h3 class="empty-cart-title">Your bag is hungry</h3>
+                    <p class="empty-cart-text">Looks like you haven't added anything yet. Explore our menu and pick something delicious!</p>
+                    <button class="browse-menu-btn" @click="showCart = false">Start Ordering</button>
+                </div>
+
+                <!-- ACTIVE CART BODY -->
+                <div v-else class="drawer-scrollable-body">
+                    <!-- CART ITEMS LIST -->
+                    <div class="cart-items-list">
+                        <div v-for="item in cart" :key="item.id" class="cart-row">
+                            <img :src="item.image" :alt="item.name" class="cart-row-img">
+                            
+                            <div class="cart-row-details">
+                                <div class="cart-row-top">
+                                    <h4 class="cart-row-name">{{ item.name }}</h4>
+                                    <button class="cart-remove-link" @click="removeFromCart(item)" title="Remove item">✕</button>
+                                </div>
+                                <div class="cart-row-meta">
+                                    <span class="cart-row-unit-price">₱{{ item.price.toFixed(2) }}</span>
+                                </div>
+                                <div class="cart-row-bottom">
+                                    <!-- QUANTITY CONTROLS -->
+                                    <div class="qty-stepper">
+                                        <button class="qty-btn" @click="decreaseQuantity(item)" title="Decrease">-</button>
+                                        <span class="qty-num">{{ item.quantity }}</span>
+                                        <button class="qty-btn" @click="increaseQuantity(item)" title="Increase">+</button>
+                                    </div>
+                                    <span class="cart-row-subtotal">₱{{ (item.price * item.quantity).toFixed(2) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PROMO CODE SECTION -->
+                    <div class="promo-box">
+                        <label class="promo-label">Have a Voucher Code?</label>
+                        <div class="promo-input-row">
+                            <input 
+                                v-model="activePromoCode" 
+                                type="text" 
+                                placeholder="e.g. KAONTIME" 
+                                class="promo-input"
+                                @keyup.enter="applyPromo"
+                            >
+                            <button class="apply-promo-btn" @click="applyPromo">Apply</button>
+                        </div>
+                        <p v-if="promoMessage" class="promo-feedback" :class="promoStatus">{{ promoMessage }}</p>
+                    </div>
+
+                    <!-- DELIVERY ADDRESS PREVIEW -->
+                    <div class="checkout-detail-card">
+                        <div class="detail-card-row">
+                            <span class="detail-label">📍 Delivery Address</span>
+                            <span class="detail-val editable">{{ deliveryAddress }}</span>
+                        </div>
+                        <div class="detail-card-row">
+                            <span class="detail-label">💳 Payment Method</span>
+                            <select v-model="paymentMethod" class="payment-select">
+                                <option value="GCash">GCash (Instant Pay)</option>
+                                <option value="Maya">Maya Wallet</option>
+                                <option value="Cash on Delivery">Cash on Delivery (COD)</option>
+                                <option value="Credit / Debit Card">Credit / Debit Card</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- BILL BREAKDOWN -->
+                    <div class="bill-summary">
+                        <div class="summary-line">
+                            <span>Subtotal</span>
+                            <span>₱{{ cartSubtotal.toFixed(2) }}</span>
+                        </div>
+                        <div v-if="appliedDiscount > 0" class="summary-line discount-line">
+                            <span>Promo Discount ({{ (appliedDiscount * 100).toFixed(0) }}%)</span>
+                            <span>-₱{{ discountAmount.toFixed(2) }}</span>
+                        </div>
+                        <div class="summary-line">
+                            <span>Delivery Fee</span>
+                            <span v-if="deliveryFee === 0" class="free-badge">FREE</span>
+                            <span v-else>₱{{ deliveryFee.toFixed(2) }}</span>
+                        </div>
+                        <div class="summary-divider"></div>
+                        <div class="summary-line total-line">
+                            <span class="total-label">Total Amount</span>
+                            <span class="total-value">₱{{ cartTotal.toFixed(2) }}</span>
+                        </div>
+                    </div>
+
+                    <!-- CHECKOUT BUTTON -->
+                    <button class="complete-order-btn" @click="checkout">
+                        <span>Place Order &bull; ₱{{ cartTotal.toFixed(2) }}</span>
+                        <i class="bi bi-arrow-right ms-2 fs-5"></i>
+                    </button>
+                    
+                    <p class="order-guarantee-note">
+                        ⚡ <strong>KaONTIME Guarantee:</strong> Hot & fresh delivery within 30 minutes or order voucher.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ORDER SUCCESS CONFIRMATION MODAL -->
+        <div v-if="showSuccessModal && completedOrder" class="modal-overlay" @click.self="closeSuccessModal">
+            <div class="success-modal-card">
+                <div class="success-badge-icon"><i class="bi bi-check-lg"></i></div>
+                <h2 class="success-title">Order Placed Successfully!</h2>
+                <p class="success-subtitle">Salamat! Your order is being freshly prepared in our kitchen right now.</p>
+
+                <div class="order-receipt-box">
+                    <div class="receipt-header">
+                        <span class="receipt-id">Order Ref: <strong>{{ completedOrder.orderNumber }}</strong></span>
+                        <span class="receipt-time">⏱️ Estimated: {{ completedOrder.deliveryTime }}</span>
+                    </div>
+
+                    <div class="receipt-items-list">
+                        <div v-for="item in completedOrder.items" :key="item.id" class="receipt-item-row">
+                            <span>{{ item.quantity }}x {{ item.name }}</span>
+                            <span>₱{{ (item.price * item.quantity).toFixed(2) }}</span>
+                        </div>
+                    </div>
+
+                    <div class="receipt-total-row">
+                        <span>Paid via {{ completedOrder.paymentMethod }}</span>
+                        <strong class="receipt-grand-total">₱{{ completedOrder.total.toFixed(2) }}</strong>
+                    </div>
+                </div>
+
+                <div class="delivery-tracker-simulation">
+                    <div class="step active">
+                        <span class="step-dot"></span>
+                        <span class="step-text">Order Received</span>
+                    </div>
+                    <div class="step-line active"></div>
+                    <div class="step active">
+                        <span class="step-dot"></span>
+                        <span class="step-text">Cooking</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <span class="step-dot"></span>
+                        <span class="step-text">On the Way</span>
+                    </div>
+                </div>
+
+                <button class="back-to-menu-btn" @click="closeSuccessModal">
+                    Order More Delicious Food
+                </button>
+            </div>
+        </div>
+
+        <!-- DATABASE ORDERS MODAL (BACKEND / KITCHEN TRACKER) -->
+        <div v-if="showOrdersModal" class="modal-overlay" @click.self="showOrdersModal = false">
+            <div class="orders-modal-card">
+                <div class="orders-modal-header">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="db-badge-pill">
+                            <i class="bi bi-clock-history text-success"></i> Live
+                        </div>
+                        <h3 class="m-0 fs-5 fw-bold">Recent Orders & Tracking</h3>
+                    </div>
+                    <button class="modal-close-icon-btn" @click="showOrdersModal = false">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+
+                <div class="orders-modal-body">
+                    <div v-if="dbOrders.length === 0" class="text-center py-5">
+                        <i class="bi bi-inbox fs-1 text-muted"></i>
+                        <p class="mt-2 text-muted">No orders in database yet. Place an order to see it live here!</p>
+                    </div>
+
+                    <div v-else class="orders-list-grid">
+                        <div v-for="order in dbOrders" :key="order.id" class="db-order-card">
+                            <div class="db-order-card-head">
+                                <div>
+                                    <span class="db-order-num">{{ order.orderNumber }}</span>
+                                    <span class="db-order-date ms-2 text-muted">{{ new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}</span>
+                                </div>
+                                <div class="order-status-selector">
+                                    <select 
+                                        :value="order.status" 
+                                        @change="updateOrderStatus(order.id, $event.target.value)"
+                                        class="status-select-badge"
+                                        :class="'status-' + order.status.toLowerCase().replace(/\s+/g, '-')"
+                                    >
+                                        <option value="Pending">Pending</option>
+                                        <option value="Preparing">Preparing</option>
+                                        <option value="Out for Delivery">Out for Delivery</option>
+                                        <option value="Delivered">Delivered</option>
+                                        <option value="Cancelled">Cancelled</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="db-order-customer">
+                                <i class="bi bi-person-circle me-1 text-primary"></i>
+                                <strong>{{ order.customerName }}</strong>
+                                <span class="text-muted ms-2">&bull; {{ order.paymentMethod }}</span>
+                            </div>
+                            <div class="db-order-address text-muted">
+                                <i class="bi bi-geo-alt me-1 text-danger"></i> {{ order.deliveryAddress }}
+                            </div>
+
+                            <div class="db-order-items">
+                                <div v-for="item in order.items" :key="item.id" class="db-order-item-row">
+                                    <span>{{ item.quantity }}x {{ item.name }}</span>
+                                    <span>₱{{ item.subtotal.toFixed(2) }}</span>
+                                </div>
+                            </div>
+
+                            <div class="db-order-card-foot">
+                                <span>Total Amount:</span>
+                                <strong class="text-success fs-6">₱{{ order.totalAmount.toFixed(2) }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="orders-modal-footer">
+                    <button class="btn btn-outline-secondary btn-sm" @click="fetchDbOrders">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Refresh Orders
+                    </button>
+                    <button class="btn btn-primary btn-sm px-4" @click="showOrdersModal = false">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOAST NOTIFICATION -->
+        <transition name="toast-fade">
+            <div v-if="toast.show" class="floating-toast">
+                <span class="toast-icon">{{ toast.icon }}</span>
+                <span class="toast-text">{{ toast.message }}</span>
+            </div>
+        </transition>
+
+        <!-- FOOTER -->
+        <footer class="app-footer">
+            <div class="footer-container">
+                <div class="footer-brand-col">
+                    <div class="logo-wrapper footer-logo">
+                        <div class="logo-icon">
+                            <i class="bi bi-clock-history fs-6"></i>
+                        </div>
+                        <div class="logo-text">
+                            <span class="brand-title">Ka<span class="brand-accent">ONTIME</span></span>
+                        </div>
+                    </div>
+                    <p class="footer-desc">
+                        KaONTIME Kitchen is your premier destination for gourmet burgers, artisan pizzas, authentic pastas, and crisp comfort meals delivered on time, every time.
+                    </p>
+                    <div class="payment-badges-row">
+                        <span class="pay-chip">GCash</span>
+                        <span class="pay-chip">Maya</span>
+                        <span class="pay-chip">Visa</span>
+                        <span class="pay-chip">Mastercard</span>
+                        <span class="pay-chip">COD</span>
+                    </div>
+                </div>
+
+                <div class="footer-links-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#menu-section" @click.prevent="selectedCategory = 'All'; showFavoritesOnly = false;">Full Menu</a></li>
+                        <li><a href="#menu-section" @click.prevent="selectedCategory = 'Burgers'">Signature Burgers</a></li>
+                        <li><a href="#menu-section" @click.prevent="selectedCategory = 'Pizza'">Artisan Pizzas</a></li>
+                        <li><a href="#menu-section" @click.prevent="selectedCategory = 'Chicken'">Crispy Chicken</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links-col">
+                    <h4>Service Hours</h4>
+                    <ul>
+                        <li>Monday - Friday: 10:00 AM – 11:00 PM</li>
+                        <li>Saturday - Sunday: 9:00 AM – 12:00 MN</li>
+                        <li>Express Delivery: 24/7 in Select Zones</li>
+                        <li>Hotline: (02) 8888-KAON</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 KaONTIME Express Food Inc. All rights reserved. Made with ❤️ for food lovers.</p>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <!-- App Logic -->
+    <script src="app.js"></script>
+</body>
+</html>

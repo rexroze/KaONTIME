@@ -1,0 +1,9 @@
+.env
+.env.*
+!.env.example
+database/*.sqlite
+storage/logs/*
+node_modules
+.vercel
+tests
+bootstrap/cache/*.php

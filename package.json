@@ -1,0 +1,11 @@
+{
+  "name": "vueactivity-kaontime",
+  "version": "1.0.0",
+  "private": true,
+  "description": "IT Elective 4 — KaONTIME Laravel + Vue 3 + Quasar activity",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "npm --prefix VueActivity run build",
+    "test:backend": "composer --working-dir=backend test"
+  }
+}
