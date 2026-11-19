@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\PromoCode;
+use App\Models\StoreSetting;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
@@ -31,6 +32,10 @@ class OrderService
                     return [$existing->load('items'), true];
                 }
 
+                if (! filter_var(StoreSetting::getValue('store_open', '1'), FILTER_VALIDATE_BOOLEAN)) {
+                    abort(409, 'The store is currently closed. Please try again later.');
+                }
+
                 $quantities = collect($input['items'])->groupBy('productId')->map(fn (Collection $rows) => $rows->sum('quantity'));
                 $products = Product::whereIn('id', $quantities->keys())->orderBy('id')->lockForUpdate()->get()->keyBy('id');
                 if ($products->count() !== $quantities->count()) {
@@ -55,7 +60,7 @@ class OrderService
                 }
 
                 $discount = round($subtotal * (($promo?->discount_percent ?? 0) / 100), 2);
-                $fee = (float) config('app.order_delivery_fee', 50);
+                $fee = (float) StoreSetting::getValue('delivery_fee', config('app.order_delivery_fee', 50));
                 $order = Order::create([
                     'user_id' => $user->id, 'idempotency_key' => $key, 'request_hash' => $hash,
                     'order_number' => 'KAON-'.strtoupper(Str::random(10)), 'customer_name' => $input['customerName'],

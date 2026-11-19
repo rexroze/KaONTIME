@@ -7,10 +7,19 @@
   "scripts": {
     "dev": "quasar dev",
     "build": "quasar build",
+    "build:android": "quasar build -m capacitor -T android",
+    "sync:android": "quasar build -m capacitor -T android --skip-pkg",
     "lint": "eslint .",
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@capacitor/android": "^7.6.10",
+    "@capacitor/app": "^7.1.2",
+    "@capacitor/cli": "^7.6.10",
+    "@capacitor/core": "^7.6.10",
+    "@capacitor/preferences": "^7.0.4",
+    "@capacitor/splash-screen": "^7.0.5",
+    "@capacitor/status-bar": "^7.0.6",
     "@quasar/extras": "^1.16.15",
     "axios": "^1.7.9",
     "pinia": "^2.3.0",
