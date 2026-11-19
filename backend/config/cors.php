@@ -7,6 +7,8 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => array_values(array_filter([
+        // Set FRONTEND_URL per environment; the rest cover production, local dev,
+        // and the Capacitor Android/iOS WebView origins.
         env('FRONTEND_URL'),
         'https://vueactivity-kaontime.vercel.app',
         'http://localhost',
