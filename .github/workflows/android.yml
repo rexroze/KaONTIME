@@ -49,7 +49,13 @@ jobs:
           java-version: 21
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        run: |
+          # The runner image already ships the Android SDK; installing the
+          # legacy "tools" package via android-actions/setup-android fails on
+          # images whose cmdline-tools no longer publish it.
+          sdkmanager_bin="$(command -v sdkmanager || find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -n 1)"
+          yes | "$sdkmanager_bin" --licenses > /dev/null 2>&1 || true
+          "$sdkmanager_bin" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Resolve app version
         id: version
