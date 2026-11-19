@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\PromoCode;
+use App\Models\StoreSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +26,15 @@ class ApiController extends Controller
         } catch (\Throwable) {
             return response()->json(['status' => 'error', 'database' => 'unavailable'], 503);
         }
+    }
+
+    public function settings(): JsonResponse
+    {
+        return response()->json(['success' => true, 'data' => [
+            'deliveryFee' => (float) StoreSetting::getValue('delivery_fee', config('app.order_delivery_fee', 50)),
+            'storeOpen' => (bool) StoreSetting::getValue('store_open', '1'),
+            'storeMessage' => (string) StoreSetting::getValue('store_message', ''),
+        ]]);
     }
 
     public function menu(Request $request): JsonResponse

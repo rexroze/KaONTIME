@@ -25,5 +25,16 @@ backend/CHANGELOG.md
 **/test-results/
 **/playwright-report/
 *.log
+# Android / Capacitor build artifacts
+VueActivity/src-capacitor/www/
+VueActivity/src-capacitor/android/.gradle/
+VueActivity/src-capacitor/android/build/
+VueActivity/src-capacitor/android/app/build/
+VueActivity/src-capacitor/android/local.properties
+VueActivity/src-capacitor/android/**/*.jks
+VueActivity/src-capacitor/android/**/*.keystore
+*.jks
+*.keystore
+VueActivity/.env.local
 # Earlier screenshot iterations are kept locally; the submission uses current/.
 /submission/screenshots/*.png

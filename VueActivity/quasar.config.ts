@@ -1,7 +1,7 @@
 import { defineConfig } from '#q-app/wrappers'
 
 export default defineConfig(() => ({
-  boot: ['api'],
+  boot: ['api', 'native'],
   css: ['app.scss'],
   extras: ['material-icons'],
   build: {
@@ -14,7 +14,11 @@ export default defineConfig(() => ({
   animations: [],
   ssr: { prodPort: 3000, middlewares: ['render'] },
   pwa: { workboxMode: 'GenerateSW' },
-  capacitor: { hideSplashscreen: true },
+  capacitor: {
+    appName: 'KaONTIME',
+    version: '1.0.0',
+    hideSplashscreen: false
+  },
   electron: { inspectPort: 5858, bundler: 'packager', packager: {}, builder: { appId: 'vueactivity' } },
   bex: {}
 }))

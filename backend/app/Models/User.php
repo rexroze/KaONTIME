@@ -32,6 +32,11 @@ class User extends Authenticatable
         return $this->hasMany(Address::class);
     }
 
+    public function logs(): HasMany
+    {
+        return $this->hasMany(AdminAuditLog::class);
+    }
+
     public function favoriteProducts(): BelongsToMany
     {
         return $this->belongsToMany(Product::class, 'favorites')->withTimestamps();

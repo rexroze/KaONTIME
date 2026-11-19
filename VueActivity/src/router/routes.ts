@@ -5,8 +5,16 @@ const routes: RouteRecordRaw[] = [
   { path: '/activity', component: () => import('../pages/ActivityPage.vue') },
   { path: '/login', component: () => import('../pages/AccountPage.vue') },
   { path: '/register', component: () => import('../pages/AccountPage.vue') },
-  { path: '/orders', component: () => import('../pages/OrdersPage.vue') },
-  { path: '/admin', component: () => import('../pages/AdminPage.vue') },
+  {
+    path: '/orders',
+    component: () => import('../pages/OrdersPage.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/admin',
+    component: () => import('../pages/AdminPage.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
   { path: '/:pathMatch(.*)*', redirect: '/' }
 ]
 export default routes

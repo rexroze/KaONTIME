@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\StoreSetting;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -24,5 +25,9 @@ class DatabaseSeeder extends Seeder
             ['code' => 'WELCOME10', 'discount_percent' => 10, 'description' => '10% OFF for new KaONTIME customers', 'min_spend' => 200],
             ['code' => 'SEMI50', 'discount_percent' => 50, 'description' => 'Semifinal special 50% discount', 'min_spend' => 300],
         ]));
+
+        StoreSetting::putValue('delivery_fee', 50);
+        StoreSetting::putValue('store_open', true);
+        StoreSetting::putValue('store_message', '');
     }
 }
