@@ -1,5 +1,16 @@
 apply plugin: 'com.android.application'
 
+// CI injects these (-PkaontimeVersionCode / -PkaontimeVersionName); local builds
+// fall back to the defaults below.
+def kaontimeVersionCode = 1
+def kaontimeVersionName = '1.0.0'
+if (project.hasProperty('kaontimeVersionCode')) {
+    kaontimeVersionCode = project.property('kaontimeVersionCode').toString().toInteger()
+}
+if (project.hasProperty('kaontimeVersionName')) {
+    kaontimeVersionName = project.property('kaontimeVersionName').toString()
+}
+
 android {
     namespace "ph.kaontime.app"
     compileSdk rootProject.ext.compileSdkVersion
@@ -7,8 +18,8 @@ android {
         applicationId "ph.kaontime.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode (project.findProperty('kaontimeVersionCode') ?: '1').toInteger()
-        versionName (project.findProperty('kaontimeVersionName') ?: '1.0.0').toString()
+        versionCode kaontimeVersionCode
+        versionName kaontimeVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
