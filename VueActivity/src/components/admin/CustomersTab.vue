@@ -51,9 +51,9 @@
           <b>{{ customer.name }}</b>
           <small>{{ customer.email }}</small>
         </span>
-        <span>{{ customer.ordersCount }}</span>
-        <span>{{ money(customer.totalSpent) }}</span>
-        <span>{{ shortDate(customer.lastOrderAt) }}</span>
+        <span data-label="Orders">{{ customer.ordersCount }}</span>
+        <span data-label="Spent">{{ money(customer.totalSpent) }}</span>
+        <span data-label="Last order">{{ shortDate(customer.lastOrderAt) }}</span>
         <label class="admin-switch">
           <input
             type="checkbox"

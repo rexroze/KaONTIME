@@ -3,9 +3,10 @@
     view="hHh lpR fFf"
     class="app-shell"
   >
-    <div class="promo-strip">
-      <span>✦ TODAY'S LITTLE EXTRA</span>&nbsp; <b>₱50 flat delivery</b> · made with care
-    </div><q-header class="topbar">
+    <q-header class="topbar">
+      <div class="promo-strip">
+        <span>✦ TODAY'S LITTLE EXTRA</span>&nbsp; <b>₱50 flat delivery</b> · made with care
+      </div>
       <div class="nav wrap">
         <a
           class="brand"
@@ -13,41 +14,120 @@
           @click="resetFilters"
         ><span class="brand-mark"><q-icon name="schedule" /></span><span>Ka<span>ONTIME</span><small>KITCHEN & EXPRESS</small></span></a><div class="location">
           <q-icon name="place" /><span>Cebu City <small>· 20–30 min</small></span>
-        </div><div class="nav-actions">
-          <router-link
-            class="nav-link"
-            to="/orders"
-          >
-            My orders
-          </router-link><router-link
-            class="nav-link"
-            :to="session.user ? '/orders' : '/login'"
-          >
-            {{ session.user ? 'Account' : 'Sign in' }}
-          </router-link><router-link
-            v-if="session.isAdmin"
-            class="nav-link"
-            to="/admin"
-          >
-            Admin
-          </router-link><button
-            v-if="session.user"
-            class="nav-link"
-            @click="signOut"
-          >
-            Sign out
-          </button><button
-            class="nav-link"
-            :class="{chosen:favoritesOnly}"
-            @click="favoritesOnly=!favoritesOnly"
-          >
-            <q-icon name="favorite_border" /><span>Saved</span><i v-if="session.favoriteIds.length">{{ session.favoriteIds.length }}</i>
-          </button><button
+        </div><div class="nav-end">
+          <div class="nav-actions nav-actions--store">
+            <router-link
+              class="nav-link"
+              to="/orders"
+            >
+              My orders
+            </router-link><router-link
+              class="nav-link"
+              :to="session.user ? '/orders' : '/login'"
+            >
+              {{ session.user ? 'Account' : 'Sign in' }}
+            </router-link><router-link
+              v-if="session.isAdmin"
+              class="nav-link"
+              to="/admin"
+            >
+              Admin
+            </router-link><button
+              v-if="session.user"
+              class="nav-link"
+              @click="signOut"
+            >
+              Sign out
+            </button><button
+              class="nav-link"
+              :class="{chosen:favoritesOnly}"
+              @click="favoritesOnly=!favoritesOnly"
+            >
+              <q-icon name="favorite_border" /><span>Saved</span><i v-if="session.favoriteIds.length">{{ session.favoriteIds.length }}</i>
+            </button>
+          </div>
+          <button
             class="order-pill"
             @click="cartOpen=true"
           >
             <q-icon name="shopping_bag" /><span>Your order</span><b>{{ shop.cartCount }} · {{ money(shop.subtotal) }}</b>
           </button>
+          <q-btn
+            v-if="$q.screen.lt.md"
+            class="nav-menu-toggle"
+            flat
+            round
+            dense
+            icon="menu"
+            aria-label="Open navigation menu"
+          >
+            <q-menu
+              class="mobile-menu"
+              anchor="bottom right"
+              self="top right"
+            >
+              <q-list>
+                <q-item
+                  v-close-popup
+                  clickable
+                  to="/orders"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="receipt_long" />
+                  </q-item-section>
+                  <q-item-section>My orders</q-item-section>
+                </q-item>
+                <q-item
+                  v-close-popup
+                  clickable
+                  :to="session.user ? '/orders' : '/login'"
+                >
+                  <q-item-section avatar>
+                    <q-icon :name="session.user ? 'person' : 'login'" />
+                  </q-item-section>
+                  <q-item-section>{{ session.user ? 'Account' : 'Sign in' }}</q-item-section>
+                </q-item>
+                <q-item
+                  v-close-popup
+                  clickable
+                  @click="favoritesOnly=!favoritesOnly"
+                >
+                  <q-item-section avatar>
+                    <q-icon :name="favoritesOnly ? 'favorite' : 'favorite_border'" />
+                  </q-item-section>
+                  <q-item-section>Saved</q-item-section>
+                  <q-item-section
+                    v-if="session.favoriteIds.length"
+                    side
+                  >
+                    <span class="mobile-menu-count">{{ session.favoriteIds.length }}</span>
+                  </q-item-section>
+                </q-item>
+                <q-item
+                  v-if="session.isAdmin"
+                  v-close-popup
+                  clickable
+                  to="/admin"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="admin_panel_settings" />
+                  </q-item-section>
+                  <q-item-section>Admin</q-item-section>
+                </q-item>
+                <q-item
+                  v-if="session.user"
+                  v-close-popup
+                  clickable
+                  @click="signOut"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="logout" />
+                  </q-item-section>
+                  <q-item-section>Sign out</q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-btn>
         </div>
       </div>
     </q-header><q-page-container>

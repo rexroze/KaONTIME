@@ -39,10 +39,13 @@
         :key="promo.id"
         class="admin-table-row"
       >
-        <b>{{ promo.code }}</b>
-        <span>{{ promo.discountPercent }}%</span>
-        <span>{{ money(promo.minSpend) }}</span>
-        <label class="admin-switch">
+        <b data-label="Code">{{ promo.code }}</b>
+        <span data-label="Discount">{{ promo.discountPercent }}%</span>
+        <span data-label="Min spend">{{ money(promo.minSpend) }}</span>
+        <label
+          class="admin-switch"
+          data-label="Status"
+        >
           <input
             type="checkbox"
             :checked="promo.active"
